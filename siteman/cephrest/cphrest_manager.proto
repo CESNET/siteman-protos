@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option go_package = "pkg/proto";
+package cphrest_manager.v1;
+
+import "google/protobuf/empty.proto";
+
+service CphRestManager {
+  rpc GetSiteName (google.protobuf.Empty) returns (GetSiteNameResponse) {}
+  rpc ListKeys (google.protobuf.Empty) returns (ListKeyResponse) {}
+  rpc CreateKey (S3CreateKeyRequest) returns (CreateKeyResponse) {}
+  rpc DeleteKey (S3CreateKeyRequest) returns (Status) {}
+}
+
+message S3CreateKeyRequest {
+	string entity = 1;
+	map<string, string> caps = 2;
+}
+
+message GetSiteNameResponse {
+	string site_name = 1;
+}
+
+message CephRestfulKey {
+	string entity = 1;
+	string key = 2;
+	map<string, string> caps = 3;
+}
+
+message Status {
+	string message = 1;
+	string description = 2;
+	uint32 status = 3;
+}
+
+message ListKeyResponse {
+	repeated CephRestfulKey keys = 1;
+	Status status = 2;
+}
+
+message CreateKeyResponse {
+	CephRestfulKey key = 1;
+	Status status = 2;
+}
