@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 service RGWManager {
   // Sends a greeting
   rpc GetSiteName (google.protobuf.Empty) returns (GetSiteNameResponse) {}
-  rpc GetS3Account (AccountCondition) returns (S3CreateAccountResponse) {}
+  rpc GetS3Account (AccountCondition) returns (S3GetAccountResponse) {}
   rpc GetS3Accounts (google.protobuf.Empty) returns (S3GetAccountsResponse) {}
   rpc CreateS3PersonalAccount (S3CreateAccountRequest) returns (S3CreateAccountResponse) {}
   rpc SuspendS3Account (AccountCondition) returns (Status) {}
@@ -30,6 +30,36 @@ message S3Account {
 	string display_name = 3;
 	string email = 4;
 	repeated S3Key keys = 5;
+}
+message SubUser {
+	string id = 1;
+	string permissions = 2;
+}
+
+message UserStats {
+	uint32 size  = 1;
+	uint32 size_actual = 2;
+	uint32 size_utilized = 3;
+	uint32 size_kb = 4;
+	uint32 size_kb_actual = 5;
+	uint32 size_kb_utilized = 6;
+	uint32 num_objects = 7;
+}
+message UserCap {
+	string type = 1; 
+	string permission = 2; 
+}
+
+message UserInfo {
+	string tenant = 1;
+	string uid = 2;
+	string display_name = 3;
+	string email = 4;
+	bool suspended = 5;
+	uint32 max_buckets = 6;
+	repeated SubUser sub_users = 7;
+	repeated UserCap caps = 8;
+	UserStats stats = 9;
 }
 
 /* Request Types */
@@ -61,6 +91,10 @@ message S3CreateAccountResponse {
 	Status status = 2;
 }
 
+message S3GetAccountResponse {
+	UserInfo account = 1;
+	Status status = 2;
+}
 message S3KeyRequest {
 	string uid = 1;
 	string key_type = 2;
