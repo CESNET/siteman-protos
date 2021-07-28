@@ -7,13 +7,29 @@ import "google/protobuf/empty.proto";
 
 service CphRestManager {
   rpc GetSiteName (google.protobuf.Empty) returns (GetSiteNameResponse) {}
+  // list all keys https://docs.ceph.com/en/latest/rados/operations/user-management/
+  // `ceph auth auth ls`
   rpc ListKeys (google.protobuf.Empty) returns (ListKeyResponse) {}
+  // get or create key see https://docs.ceph.com/en/latest/rados/operations/user-management/
+  // `ceph auth get-or-create-key`
   rpc CreateKey (S3CreateKeyRequest) returns (CreateKeyResponse) {}
+  // delete user for given key see https://docs.ceph.com/en/latest/rados/operations/user-management/
+  // `ceph auth del`
   rpc DeleteKey (S3CreateKeyRequest) returns (Status) {}
 }
 
 message S3CreateKeyRequest {
+	// for example gatekeeper
 	string entity = 1;
+	// When creating client users, you may create a user with no capabilities. 
+    // A user with no capabilities is useless beyond mere authentication, because the 
+    // client cannot retrieve the cluster map from the monitor. However, you can create 
+    // a user with no capabilities if you wish to defer adding capabilities later using the 
+    // ceph auth caps command.
+    // A typical user has at least read capabilities on the Ceph monitor and read and write c
+    // apability on Ceph OSDs. Additionally, a user’s OSD permissions are often restricted to 
+    // accessing a particular pool.
+	// {'mon': 'allow r', 'osd': 'allow rw pool=liverpool'}
 	map<string, string> caps = 2;
 }
 
@@ -22,8 +38,11 @@ message GetSiteNameResponse {
 }
 
 message CephRestfulKey {
+	// for example gatekeeper
 	string entity = 1;
+	// key for given entity
 	string key = 2;
+	// see S3CreateKeyRequest doc
 	map<string, string> caps = 3;
 }
 

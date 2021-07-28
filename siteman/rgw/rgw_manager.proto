@@ -7,14 +7,39 @@ import "google/protobuf/empty.proto";
 
 // The greeting service definition.
 service RGWManager {
-  // Sends a greeting
+  // Get site name only - use for health
   rpc GetSiteName (google.protobuf.Empty) returns (GetSiteNameResponse) {}
+  // get S3 account via condition specified as parameter
   rpc GetS3Account (AccountCondition) returns (S3GetAccountResponse) {}
+  // scan all accounts
   rpc GetS3Accounts (google.protobuf.Empty) returns (S3GetAccountsResponse) {}
+  // create personal account specified in S3CreateAccountRequest
+  // By default, a S3 key pair will be created automatically and returned in the response.
+  // If only one of access-key or secret-key is provided, the omitted key will be automatically
+  // generated. By default, a generated key is added to the keyring without replacing an 
+  // existing key pair. If access-key is specified and refers to an existing key owned by the 
+  // user then it will be modified.
   rpc CreateS3PersonalAccount (S3CreateAccountRequest) returns (S3CreateAccountResponse) {}
+  // just suspend given account
   rpc SuspendS3Account (AccountCondition) returns (Status) {}
+  // REMOVE given account
+  // NOTE: Does not require owner to be non-suspended.
   rpc RemoveS3Account (RemoveCondition) returns (Status) {}
+// KeyCreate - Create a key
+//
+// Create a new key. If a subuser is specified then by default created keys will
+// be swift type. If only one of access-key or secret-key is provided the committed
+// key will be automatically generated, that is if only SecretKey is specified then
+// AccessKey will be automatically generated. By default, a generated key is added
+// to the keyring without replacing an existing key pair. If access-key is specified
+// and refers to an existing key owned by the user then it will be modified.
+// The response is a container listing all keys of the same type as the key created.
+// Note that when creating a swift key, specifying the option AccessKey will have no
+// effect. Additionally, only one swift key may be held by each user or subuser.
   rpc CreateS3Key (S3KeyRequest) returns (S3KeyResponse) {}
+// RemoveS3Key - delete an existing key.
+//
+// Key type is optional, but required to remove a swift key.
   rpc RemoveS3Key (S3KeyRequest) returns (Status) {}
 }
 
@@ -25,10 +50,18 @@ message S3Key {
 }
 
 message S3Account {
+	// A tenant may either be specified as a part of uid or as an additional request param.
 	string tenant = 1;
+	// The user identificator for which the information is requested.
 	string uid = 2;
+	// Display name
 	string display_name = 3;
+	// email link to this account
 	string email = 4;
+	// If only one of access-key or secret-key is provided, the omitted key will be automatically
+    // generated. By default, a generated key is added to the keyring without replacing an 
+    // existing key pair. If access-key is specified and refers to an existing key owned by the 
+    // user then it will be modified.
 	repeated S3Key keys = 5;
 }
 message SubUser {
@@ -45,6 +78,13 @@ message UserStats {
 	uint32 size_kb_utilized = 6;
 	uint32 num_objects = 7;
 }
+// UserCap - capabilities / permissions. 
+// Note - capabilities are additive.  This will only ever make a user's permissions
+// more permissive.  As an example, if the user has metadata permission of *, calling
+// this with metadata set to read will have no effect.  On the other hand, if a user's
+// permission was read, and CapsAdd was called with write, the new effective permission
+// would be read + write (*).  To remove permissions, you must call CapsRm(), which is
+// subtractive.
 message UserCap {
 	string type = 1; 
 	string permission = 2; 
@@ -97,6 +137,8 @@ message S3GetAccountResponse {
 }
 message S3KeyRequest {
 	string uid = 1;
+	// key type is swift OR s3 if is something else 
+	// will be replaced as s3
 	string key_type = 2;
 	string access_key = 3;
 }
