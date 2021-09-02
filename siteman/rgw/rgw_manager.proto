@@ -38,6 +38,7 @@ service RGWManager {
 // effect. Additionally, only one swift key may be held by each user or subuser.
   rpc CreateS3Key (S3KeyRequest) returns (S3KeyResponse) {}
 // RemoveS3Key - delete an existing key.
+// for removing key via this method S3KeyRequest has to be filled
 //
 // Key type is optional, but required to remove a swift key.
   rpc RemoveS3Key (S3KeyRequest) returns (Status) {}
@@ -100,6 +101,7 @@ message UserInfo {
 	repeated SubUser sub_users = 7;
 	repeated UserCap caps = 8;
 	UserStats stats = 9;
+	repeated string access_keys = 10;
 }
 
 /* Request Types */
@@ -108,10 +110,12 @@ message S3CreateAccountRequest {
 }
 message RemoveCondition {
 	string uid = 1;
+	string tenant = 3;
 	bool purge_data = 2;
 }
 message AccountCondition {
 	string uid = 1;
+	string tenant = 2;
 }
 /* Response Types */
 message GetSiteNameResponse {
@@ -137,10 +141,12 @@ message S3GetAccountResponse {
 }
 message S3KeyRequest {
 	string uid = 1;
+	string tenant = 4;
 	// key type is swift OR s3 if is something else 
 	// will be replaced as s3
 	string key_type = 2;
 	string access_key = 3;
+
 }
 
 message S3KeyResponse {

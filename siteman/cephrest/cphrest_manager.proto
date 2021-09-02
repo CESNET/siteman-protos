@@ -12,13 +12,13 @@ service CphRestManager {
   rpc ListKeys (google.protobuf.Empty) returns (ListKeyResponse) {}
   // get or create key see https://docs.ceph.com/en/latest/rados/operations/user-management/
   // `ceph auth get-or-create-key`
-  rpc CreateKey (S3CreateKeyRequest) returns (CreateKeyResponse) {}
+  rpc CreateKey (CreateKeyRequest) returns (CreateKeyResponse) {}
   // delete user for given key see https://docs.ceph.com/en/latest/rados/operations/user-management/
   // `ceph auth del`
-  rpc DeleteKey (S3CreateKeyRequest) returns (Status) {}
+  rpc DeleteKey (DeleteKeyRequest) returns (Status) {}
 }
 
-message S3CreateKeyRequest {
+message CreateKeyRequest {
 	// for example gatekeeper
 	string entity = 1;
 	// When creating client users, you may create a user with no capabilities. 
@@ -31,6 +31,10 @@ message S3CreateKeyRequest {
     // accessing a particular pool.
 	// {'mon': 'allow r', 'osd': 'allow rw pool=liverpool'}
 	map<string, string> caps = 2;
+}
+message DeleteKeyRequest {
+	// for example gatekeeper
+	string entity = 1;
 }
 
 message GetSiteNameResponse {
