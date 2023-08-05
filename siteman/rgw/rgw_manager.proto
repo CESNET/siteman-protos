@@ -196,4 +196,5 @@ message QuoteGet {
 
 message QuoteGetRequest {
 	string uid = 1;
+	string tenant = 2;
 }
