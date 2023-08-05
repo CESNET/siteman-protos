@@ -25,22 +25,22 @@ service RGWManager {
   // REMOVE given account
   // NOTE: Does not require owner to be non-suspended.
   rpc RemoveS3Account (RemoveCondition) returns (Status) {}
-// KeyCreate - Create a key
-//
-// Create a new key. If a subuser is specified then by default created keys will
-// be swift type. If only one of access-key or secret-key is provided the committed
-// key will be automatically generated, that is if only SecretKey is specified then
-// AccessKey will be automatically generated. By default, a generated key is added
-// to the keyring without replacing an existing key pair. If access-key is specified
-// and refers to an existing key owned by the user then it will be modified.
-// The response is a container listing all keys of the same type as the key created.
-// Note that when creating a swift key, specifying the option AccessKey will have no
-// effect. Additionally, only one swift key may be held by each user or subuser.
+  // KeyCreate - Create a key
+  //
+  // Create a new key. If a subuser is specified then by default created keys will
+  // be swift type. If only one of access-key or secret-key is provided the committed
+  // key will be automatically generated, that is if only SecretKey is specified then
+  // AccessKey will be automatically generated. By default, a generated key is added
+  // to the keyring without replacing an existing key pair. If access-key is specified
+  // and refers to an existing key owned by the user then it will be modified.
+  // The response is a container listing all keys of the same type as the key created.
+  // Note that when creating a swift key, specifying the option AccessKey will have no
+  // effect. Additionally, only one swift key may be held by each user or subuser.
   rpc CreateS3Key (S3KeyRequest) returns (S3KeyResponse) {}
-// RemoveS3Key - delete an existing key.
-// for removing key via this method S3KeyRequest has to be filled
-//
-// Key type is optional, but required to remove a swift key.
+  // RemoveS3Key - delete an existing key.
+  // for removing key via this method S3KeyRequest has to be filled
+  //
+  // Key type is optional, but required to remove a swift key.
   rpc RemoveS3Key (S3KeyRequest) returns (Status) {}
 
   // QuotaSet - set quota for user
@@ -48,6 +48,9 @@ service RGWManager {
 
   // QuotaGet - get quata for user
   rpc QuotaGet (QuoteGetRequest) returns (QuoteGet) {}
+
+  // QuotaSet - set quota for user
+  rpc SetPlacement (PlacementSetRequest) returns (Status) {}
 }
 
 message S3Key {
@@ -180,7 +183,12 @@ message QuotaSetRequest {
 	QuotaMeta user = 3;
 	QuotaMeta bucket = 4;
 }
-
+message PlacementSetRequest {
+	string uid = 1;
+	string tenant = 2;
+	string placement = 3;
+	string storage_class = 4;
+}
 message QuoteGet {
 	QuotaMeta user = 1;
 	QuotaMeta bucket = 2;
