@@ -70,6 +70,11 @@ message S3Account {
     // existing key pair. If access-key is specified and refers to an existing key owned by the 
     // user then it will be modified.
 	repeated S3Key keys = 5;
+	/// A Ceph Object Gateway user can override the zonegroup’s default placement target by
+	/// setting a non-empty default_placement field in the user info. 
+	string placement = 6;
+	/// Similarly, the default_storage_class can override the STANDARD storage class applied to objects by default.
+	string storage_class = 7;
 }
 message SubUser {
 	string id = 1;
@@ -108,6 +113,11 @@ message UserInfo {
 	repeated UserCap caps = 8;
 	UserStats stats = 9;
 	repeated string access_keys = 10;
+	/// A Ceph Object Gateway user can override the zonegroup’s default placement target by
+	/// setting a non-empty default_placement field in the user info. 
+	string placement = 11;
+	/// Similarly, the default_storage_class can override the STANDARD storage class applied to objects by default.
+	string storage_class = 12;
 }
 
 /* Request Types */
