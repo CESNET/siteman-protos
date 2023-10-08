@@ -25,23 +25,32 @@ service RGWManager {
   // REMOVE given account
   // NOTE: Does not require owner to be non-suspended.
   rpc RemoveS3Account (RemoveCondition) returns (Status) {}
-// KeyCreate - Create a key
-//
-// Create a new key. If a subuser is specified then by default created keys will
-// be swift type. If only one of access-key or secret-key is provided the committed
-// key will be automatically generated, that is if only SecretKey is specified then
-// AccessKey will be automatically generated. By default, a generated key is added
-// to the keyring without replacing an existing key pair. If access-key is specified
-// and refers to an existing key owned by the user then it will be modified.
-// The response is a container listing all keys of the same type as the key created.
-// Note that when creating a swift key, specifying the option AccessKey will have no
-// effect. Additionally, only one swift key may be held by each user or subuser.
+  // KeyCreate - Create a key
+  //
+  // Create a new key. If a subuser is specified then by default created keys will
+  // be swift type. If only one of access-key or secret-key is provided the committed
+  // key will be automatically generated, that is if only SecretKey is specified then
+  // AccessKey will be automatically generated. By default, a generated key is added
+  // to the keyring without replacing an existing key pair. If access-key is specified
+  // and refers to an existing key owned by the user then it will be modified.
+  // The response is a container listing all keys of the same type as the key created.
+  // Note that when creating a swift key, specifying the option AccessKey will have no
+  // effect. Additionally, only one swift key may be held by each user or subuser.
   rpc CreateS3Key (S3KeyRequest) returns (S3KeyResponse) {}
-// RemoveS3Key - delete an existing key.
-// for removing key via this method S3KeyRequest has to be filled
-//
-// Key type is optional, but required to remove a swift key.
+  // RemoveS3Key - delete an existing key.
+  // for removing key via this method S3KeyRequest has to be filled
+  //
+  // Key type is optional, but required to remove a swift key.
   rpc RemoveS3Key (S3KeyRequest) returns (Status) {}
+
+  // QuotaSet - set quota for user
+  rpc QuotaSet (QuotaSetRequest) returns (Status) {}
+
+  // QuotaGet - get quata for user
+  rpc QuotaGet (QuoteGetRequest) returns (QuoteGet) {}
+
+  // QuotaSet - set quota for user
+  rpc SetPlacement (PlacementSetRequest) returns (Status) {}
 }
 
 message S3Key {
@@ -64,6 +73,11 @@ message S3Account {
     // existing key pair. If access-key is specified and refers to an existing key owned by the 
     // user then it will be modified.
 	repeated S3Key keys = 5;
+	/// A Ceph Object Gateway user can override the zonegroup’s default placement target by
+	/// setting a non-empty default_placement field in the user info. 
+	string placement = 6;
+	/// Similarly, the default_storage_class can override the STANDARD storage class applied to objects by default.
+	string storage_class = 7;
 }
 message SubUser {
 	string id = 1;
@@ -102,6 +116,11 @@ message UserInfo {
 	repeated UserCap caps = 8;
 	UserStats stats = 9;
 	repeated string access_keys = 10;
+	/// A Ceph Object Gateway user can override the zonegroup’s default placement target by
+	/// setting a non-empty default_placement field in the user info. 
+	string placement = 11;
+	/// Similarly, the default_storage_class can override the STANDARD storage class applied to objects by default.
+	string storage_class = 12;
 }
 
 /* Request Types */
@@ -152,4 +171,30 @@ message S3KeyRequest {
 message S3KeyResponse {
 	Status status = 1;
 	repeated S3Key keys = 2;
+}
+message QuotaMeta {
+	int64 max_object = 2;
+	int64 max_size_kb = 3;
+	bool enabled = 5;
+}
+message QuotaSetRequest {
+	string uid = 1;
+	string tenant = 2;
+	QuotaMeta user = 3;
+	QuotaMeta bucket = 4;
+}
+message PlacementSetRequest {
+	string uid = 1;
+	string tenant = 2;
+	string placement = 3;
+	string storage_class = 4;
+}
+message QuoteGet {
+	QuotaMeta user = 1;
+	QuotaMeta bucket = 2;
+}
+
+message QuoteGetRequest {
+	string uid = 1;
+	string tenant = 2;
 }
