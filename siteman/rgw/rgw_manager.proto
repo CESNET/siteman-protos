@@ -51,6 +51,9 @@ service RGWManager {
 
   // QuotaSet - set quota for user
   rpc SetPlacement (PlacementSetRequest) returns (Status) {}
+  
+  // just suspend given account
+  rpc ActivateS3Account (AccountCondition) returns (Status) {}
 }
 
 message S3Key {
