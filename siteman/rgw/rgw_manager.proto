@@ -22,9 +22,6 @@ service RGWManager {
   rpc CreateS3PersonalAccount (S3CreateAccountRequest) returns (S3CreateAccountResponse) {}
   // just suspend given account
   rpc SuspendS3Account (AccountCondition) returns (Status) {}
-  // REMOVE given account
-  // NOTE: Does not require owner to be non-suspended.
-  rpc RemoveS3Account (RemoveCondition) returns (Status) {}
   // KeyCreate - Create a key
   //
   // Create a new key. If a subuser is specified then by default created keys will
