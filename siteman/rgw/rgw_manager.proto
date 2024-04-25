@@ -9,18 +9,18 @@ import "google/protobuf/empty.proto";
 service RGWManager {
   // Get site name only - use for health
   rpc GetSiteName (google.protobuf.Empty) returns (GetSiteNameResponse) {}
-  // get S3 account via condition specified as parameter
+  // Get S3 account via a condition specified as the parameter
   rpc GetS3Account (AccountCondition) returns (S3GetAccountResponse) {}
-  // scan all accounts
+  // Fetch all accounts from the site
   rpc GetS3Accounts (google.protobuf.Empty) returns (S3GetAccountsResponse) {}
-  // create personal account specified in S3CreateAccountRequest
+  // Creates a personal account specified in S3CreateAccountRequest
   // By default, a S3 key pair will be created automatically and returned in the response.
-  // If only one of access-key or secret-key is provided, the omitted key will be automatically
+  // If only one of the access-key or secret-key is provided, the omitted key will be automatically
   // generated. By default, a generated key is added to the keyring without replacing an 
   // existing key pair. If access-key is specified and refers to an existing key owned by the 
-  // user then it will be modified.
+  // user, then it will be modified.
   rpc CreateS3PersonalAccount (S3CreateAccountRequest) returns (S3CreateAccountResponse) {}
-  // just suspend given account
+  // Suspends given account
   rpc SuspendS3Account (AccountCondition) returns (Status) {}
   // KeyCreate - Create a key
   //
@@ -32,7 +32,7 @@ service RGWManager {
   // and refers to an existing key owned by the user then it will be modified.
   // The response is a container listing all keys of the same type as the key created.
   // Note that when creating a swift key, specifying the option AccessKey will have no
-  // effect. Additionally, only one swift key may be held by each user or subuser.
+  // effect. Additionally, each user or subuser may hold only one swift key.
   rpc CreateS3Key (S3KeyRequest) returns (S3KeyResponse) {}
   // RemoveS3Key - delete an existing key.
   // for removing key via this method S3KeyRequest has to be filled
@@ -49,7 +49,7 @@ service RGWManager {
   // QuotaSet - set quota for user
   rpc SetPlacement (PlacementSetRequest) returns (Status) {}
   
-  // just suspend given account
+  // Activate given account
   rpc ActivateS3Account (AccountCondition) returns (Status) {}
 }
 
@@ -68,10 +68,10 @@ message S3Account {
 	string display_name = 3;
 	// email link to this account
 	string email = 4;
-	// If only one of access-key or secret-key is provided, the omitted key will be automatically
+	// If only one of the access-key or secret-key is provided, the omitted key will be automatically
     // generated. By default, a generated key is added to the keyring without replacing an 
     // existing key pair. If access-key is specified and refers to an existing key owned by the 
-    // user then it will be modified.
+    // user, then it will be modified.
 	repeated S3Key keys = 5;
 	/// A Ceph Object Gateway user can override the zonegroup’s default placement target by
 	/// setting a non-empty default_placement field in the user info. 
@@ -79,27 +79,38 @@ message S3Account {
 	/// Similarly, the default_storage_class can override the STANDARD storage class applied to objects by default.
 	string storage_class = 7;
 }
+// A message representing a sub-user within a system.
 message SubUser {
+	// Identifier of the sub-user.
 	string id = 1;
+	// Permissions associated with the sub-user.
 	string permissions = 2;
+  }
+
+// A message representing statistics related to a user.
+message UserStats {
+// Total size of user data.
+uint32 size = 1;
+// Actual size of user data.
+uint32 size_actual = 2;
+// Utilized size of user data.
+uint32 size_utilized = 3;
+// Total size of user data in kilobytes.
+uint32 size_kb = 4;
+// Actual size of user data in kilobytes.
+uint32 size_kb_actual = 5;
+// Utilized size of user data in kilobytes.
+uint32 size_kb_utilized = 6;
+// Number of objects associated with the user.
+uint32 num_objects = 7;
 }
 
-message UserStats {
-	uint32 size  = 1;
-	uint32 size_actual = 2;
-	uint32 size_utilized = 3;
-	uint32 size_kb = 4;
-	uint32 size_kb_actual = 5;
-	uint32 size_kb_utilized = 6;
-	uint32 num_objects = 7;
-}
 // UserCap - capabilities / permissions. 
 // Note - capabilities are additive.  This will only ever make a user's permissions
-// more permissive.  As an example, if the user has metadata permission of *, calling
-// this with metadata set to read will have no effect.  On the other hand, if a user's
-// permission was read, and CapsAdd was called with write, the new effective permission
-// would be read + write (*).  To remove permissions, you must call CapsRm(), which is
-// subtractive.
+// More permissive. For example, if the user has metadata permission of *, calling 
+// this with metadata set to read will have no effect. On the other hand, if a user's 
+// permission was read, and CapsAdd was called with write, the new effective permission 
+// would be read + write (*). To remove permissions, you must call CapsRm(), which is subtractive.
 message UserCap {
 	string type = 1; 
 	string permission = 2; 
@@ -172,23 +183,41 @@ message S3KeyResponse {
 	Status status = 1;
 	repeated S3Key keys = 2;
 }
+
+// A message representing the metadata for quota settings.
 message QuotaMeta {
+	// Maximum number of objects allowed.
 	int64 max_object = 2;
+	// Maximum size allowed in kilobytes.
 	int64 max_size_kb = 3;
+	// Indicates whether the quota is enabled.
 	bool enabled = 5;
-}
+  }
+  
+// A message representing a request to set quota limits.
 message QuotaSetRequest {
-	string uid = 1;
-	string tenant = 2;
-	QuotaMeta user = 3;
-	QuotaMeta bucket = 4;
+// User ID of the entity.
+string uid = 1;
+// Tenant ID of the entity.
+string tenant = 2;
+// Quota settings for user-specific resources.
+QuotaMeta user = 3;
+// Quota settings for bucket-specific resources.
+QuotaMeta bucket = 4;
 }
+  
+// A message representing a request to set placement settings.
 message PlacementSetRequest {
-	string uid = 1;
-	string tenant = 2;
-	string placement = 3;
-	string storage_class = 4;
+// User ID of the entity.
+string uid = 1;
+// Tenant ID of the entity.
+string tenant = 2;
+// Placement identifier for the entity.
+string placement = 3;
+// Storage class identifier for the entity.
+string storage_class = 4;
 }
+
 message QuoteGet {
 	QuotaMeta user = 1;
 	QuotaMeta bucket = 2;
