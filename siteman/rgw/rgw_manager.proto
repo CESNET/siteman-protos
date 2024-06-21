@@ -51,6 +51,9 @@ service RGWManager {
   
   // Activate given account
   rpc ActivateS3Account (AccountCondition) returns (Status) {}
+
+  // QuotaSet - set quota for user
+  rpc SetMaxBucketForAccount (SetMaxBucketForAccountRequest) returns (Status) {}
 }
 
 message S3Key {
@@ -204,6 +207,15 @@ string tenant = 2;
 QuotaMeta user = 3;
 // Quota settings for bucket-specific resources.
 QuotaMeta bucket = 4;
+}
+// A message to set the maximum number of buckets allowed for an account.
+message SetMaxBucketForAccountRequest {
+// User ID of the entity.
+string uid = 1;
+// Tenant ID of the entity.
+string tenant = 2;
+// Maximum number of buckets allowed.
+int32 max_buckets = 3;
 }
   
 // A message representing a request to set placement settings.
