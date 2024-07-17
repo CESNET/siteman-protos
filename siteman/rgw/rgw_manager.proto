@@ -140,6 +140,10 @@ message UserInfo {
 /* Request Types */
 message S3CreateAccountRequest {
 	S3Account account = 1;
+	// Quota settings for user-specific resources.
+	QuotaMeta user_quota = 2;
+	// Quota settings for bucket-specific resources.
+	optional int32 max_buckets = 3;
 }
 message RemoveCondition {
 	string uid = 1;
