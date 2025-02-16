@@ -125,7 +125,7 @@ message UserInfo {
 	string display_name = 3;
 	string email = 4;
 	bool suspended = 5;
-	uint32 max_buckets = 6;
+	int32 max_buckets = 6;
 	repeated SubUser sub_users = 7;
 	repeated UserCap caps = 8;
 	UserStats stats = 9;
