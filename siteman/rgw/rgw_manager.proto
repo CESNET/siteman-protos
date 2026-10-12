@@ -54,6 +54,15 @@ service RGWManager {
 
   // QuotaSet - set quota for user
   rpc SetMaxBucketForAccount (SetMaxBucketForAccountRequest) returns (Status) {}
+
+  // ListBuckets - list all buckets of a given user
+  rpc ListBuckets (ListBucketsRequest) returns (ListBucketsResponse) {}
+  // CreateBucket - create a bucket for a given user
+  rpc CreateBucket (CreateBucketRequest) returns (Status) {}
+  // UpdateBucket - update a bucket of a given user
+  rpc UpdateBucket (UpdateBucketRequest) returns (Status) {}
+  // DeleteBucket - delete a bucket of a given user
+  rpc DeleteBucket (DeleteBucketRequest) returns (Status) {}
 }
 
 message S3Key {
@@ -242,4 +251,60 @@ message QuoteGet {
 message QuoteGetRequest {
 	string uid = 1;
 	string tenant = 2;
+}
+
+// A message representing a single S3 bucket of a user.
+message BucketInfo {
+  // Bucket name.
+  string name = 1;
+  // Creation time of the bucket.
+  string creation_time = 2;
+  // Storage class of the bucket.
+  string storage_class = 3;
+  // Placement of the bucket.
+  string placement = 4;
+}
+
+// A message representing a request to list buckets of a user.
+message ListBucketsRequest {
+	string uid = 1;
+	string tenant = 2;
+}
+
+// A message representing a response containing a user's buckets.
+message ListBucketsResponse {
+	Status status = 1;
+	repeated BucketInfo buckets = 2;
+}
+
+// A message representing a request to create a bucket.
+message CreateBucketRequest {
+	string uid = 1;
+	string tenant = 2;
+	// Name of the bucket to create.
+	string bucket = 3;
+	// Optional placement target.
+	string placement = 4;
+	// Optional storage class.
+	string storage_class = 5;
+}
+
+// A message representing a request to update a bucket.
+message UpdateBucketRequest {
+	string uid = 1;
+	string tenant = 2;
+	// Name of the bucket to update.
+	string bucket = 3;
+	// Optional new placement target.
+	string placement = 4;
+	// Optional new storage class.
+	string storage_class = 5;
+}
+
+// A message representing a request to delete a bucket.
+message DeleteBucketRequest {
+	string uid = 1;
+	string tenant = 2;
+	// Name of the bucket to delete.
+	string bucket = 3;
 }
